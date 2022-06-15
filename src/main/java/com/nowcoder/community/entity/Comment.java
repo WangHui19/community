@@ -5,7 +5,7 @@ import java.util.Date;
 public class Comment {
 
     private int id;
-    private int userid;
+    private int userId;
     private int entityType;
     private int entityId;
     private int targetId;
@@ -21,12 +21,12 @@ public class Comment {
         this.id = id;
     }
 
-    public int getUserid() {
-        return userid;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setUserid(int userid) {
-        this.userid = userid;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public int getEntityType() {
@@ -81,7 +81,7 @@ public class Comment {
     public String toString() {
         return "Comment{" +
                 "id=" + id +
-                ", userid=" + userid +
+                ", userid=" + userId +
                 ", entityType=" + entityType +
                 ", entityId=" + entityId +
                 ", targetId=" + targetId +

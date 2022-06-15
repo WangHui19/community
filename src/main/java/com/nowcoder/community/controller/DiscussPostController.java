@@ -83,7 +83,7 @@ public class DiscussPostController implements CommunityConstant {
                 // 评论
                 commentVo.put("comment", comment);
                 // 作者
-                commentVo.put("user", userService.findUserById(comment.getUserid()));
+                commentVo.put("user", userService.findUserById(comment.getUserId()));
 
                 // 回复列表
                 List<Comment> replyList = commentService.findCommentsByEntity(ENTITY_TYPE_COMMENT,
@@ -97,7 +97,7 @@ public class DiscussPostController implements CommunityConstant {
                         // 回复
                         replyVo.put("reply", reply);
                         // 作者
-                        replyVo.put("user", userService.findUserById(reply.getUserid()));
+                        replyVo.put("user", userService.findUserById(reply.getUserId()));
                         // 回复目标
                         User target = reply.getTargetId() == 0 ? null : userService.findUserById(reply.getTargetId());
                         replyVo.put("target", target);
