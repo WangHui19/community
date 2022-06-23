@@ -127,6 +127,7 @@ public class DiscussPostController implements CommunityConstant {
                                 likeService.findEntityLikeStatus(hostHolder.getUser().getId(),ENTITY_TYPE_COMMENT,reply.getId());
                         replyVo.put("likeStatus", likeStatus);
 
+
                         replyVoList.add(replyVo);
                     }
                 }
