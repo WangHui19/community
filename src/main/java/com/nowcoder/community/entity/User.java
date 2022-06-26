@@ -1,6 +1,5 @@
 package com.nowcoder.community.entity;
 
-import java.security.PrivateKey;
 import java.util.Date;
 
 public class User {
@@ -111,4 +110,5 @@ public class User {
                 ", createTime=" + createTime +
                 '}';
     }
+
 }

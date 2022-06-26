@@ -81,7 +81,7 @@ public class Comment {
     public String toString() {
         return "Comment{" +
                 "id=" + id +
-                ", userid=" + userId +
+                ", userId=" + userId +
                 ", entityType=" + entityType +
                 ", entityId=" + entityId +
                 ", targetId=" + targetId +

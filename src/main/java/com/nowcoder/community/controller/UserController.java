@@ -30,7 +30,7 @@ import java.io.OutputStream;
 @RequestMapping("/user")
 public class UserController implements CommunityConstant {
 
-    public static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Value("${community.path.upload}")
     private String uploadPath;
@@ -63,68 +63,65 @@ public class UserController implements CommunityConstant {
     @RequestMapping(path = "/upload", method = RequestMethod.POST)
     public String uploadHeader(MultipartFile headerImage, Model model) {
         if (headerImage == null) {
-            model.addAttribute("error", "您还没有选择图片！");
+            model.addAttribute("error", "您还没有选择图片!");
             return "/site/setting";
         }
 
-        String filename = headerImage.getOriginalFilename();
-        String suffix = filename.substring(filename.lastIndexOf("."));
-        if(StringUtils.isBlank(suffix)) {
-            model.addAttribute("error", "文件格式不正确！");
+        String fileName = headerImage.getOriginalFilename();
+        String suffix = fileName.substring(fileName.lastIndexOf("."));
+        if (StringUtils.isBlank(suffix)) {
+            model.addAttribute("error", "文件的格式不正确!");
             return "/site/setting";
         }
 
         // 生成随机文件名
-        filename = CommunityUtil.generateUUID() + suffix;
+        fileName = CommunityUtil.generateUUID() + suffix;
         // 确定文件存放的路径
-        File dest = new File(uploadPath + "/" + filename);
+        File dest = new File(uploadPath + "/" + fileName);
         try {
+            // 存储文件
             headerImage.transferTo(dest);
         } catch (IOException e) {
-            logger.error("上传文件失败：" + e.getMessage());
-            throw new RuntimeException("上传文件失败，服务器发生异常！", e);
+            logger.error("上传文件失败: " + e.getMessage());
+            throw new RuntimeException("上传文件失败,服务器发生异常!", e);
         }
 
-        // 更新当前用户的头像的路径（web访问路径）
+        // 更新当前用户的头像的路径(web访问路径)
         // http://localhost:8080/community/user/header/xxx.png
         User user = hostHolder.getUser();
-        String headerUrl = domain + contextPath + "/user/header/" + filename;
+        String headerUrl = domain + contextPath + "/user/header/" + fileName;
         userService.updateHeader(user.getId(), headerUrl);
 
         return "redirect:/index";
     }
 
-    // 修改完图片后，每次访问index页面，MVC按照更改后的图片路径匹配controller方法，
-    // 而图片路径变为 http://localhost:8080/community/user/header/xxx.png 格式
-    // 因此寻找 user（当前类路径）下的header/xxx.jpg(当前方法)的getHeader方法
-    // 这个方法将电脑路径中保存的图片用byte数组传给了浏览器
-    @RequestMapping(path = "/header/{filename}", method = RequestMethod.GET)
-    public void getHeader(@PathVariable("filename") String filename, HttpServletResponse response) {
+    @RequestMapping(path = "/header/{fileName}", method = RequestMethod.GET)
+    public void getHeader(@PathVariable("fileName") String fileName, HttpServletResponse response) {
         // 服务器存放路径
-        filename = uploadPath + "/" + filename;
+        fileName = uploadPath + "/" + fileName;
         // 文件后缀
-        String suffix = filename.substring(filename.lastIndexOf(".") + 1);
+        String suffix = fileName.substring(fileName.lastIndexOf("."));
         // 响应图片
         response.setContentType("image/" + suffix);
         try (
+                FileInputStream fis = new FileInputStream(fileName);
                 OutputStream os = response.getOutputStream();
-                FileInputStream fis = new FileInputStream(filename);
-                ) {
+        ) {
             byte[] buffer = new byte[1024];
             int b = 0;
-            while((b = fis.read(buffer)) != -1) {
+            while ((b = fis.read(buffer)) != -1) {
                 os.write(buffer, 0, b);
             }
         } catch (IOException e) {
-            logger.error("读取头像失败：" + e.getMessage());
+            logger.error("读取头像失败: " + e.getMessage());
         }
     }
 
-    // 个人主页user/profile/${loginUser.id}
+    // 个人主页
     @RequestMapping(path = "/profile/{userId}", method = RequestMethod.GET)
     public String getProfilePage(@PathVariable("userId") int userId, Model model) {
         User user = userService.findUserById(userId);
-        if(user == null) {
+        if (user == null) {
             throw new RuntimeException("该用户不存在!");
         }
 

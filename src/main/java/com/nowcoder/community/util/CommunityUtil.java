@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.DigestUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -15,9 +16,10 @@ public class CommunityUtil {
     }
 
     // MD5加密
-    // 自己设置的密码 + salt（我们给用户添加的） -> 加密结果
+    // hello -> abc123def456
+    // hello + 3e4a8 -> abc123def456abc
     public static String md5(String key) {
-        if(StringUtils.isBlank(key)) {
+        if (StringUtils.isBlank(key)) {
             return null;
         }
         return DigestUtils.md5DigestAsHex(key.getBytes());
@@ -41,6 +43,13 @@ public class CommunityUtil {
 
     public static String getJSONString(int code) {
         return getJSONString(code, null, null);
+    }
+
+    public static void main(String[] args) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", "zhangsan");
+        map.put("age", 25);
+        System.out.println(getJSONString(0, "ok", map));
     }
 
 }

@@ -30,85 +30,15 @@ public class SensitiveFilter {
         try (
                 InputStream is = this.getClass().getClassLoader().getResourceAsStream("sensitive-words.txt");
                 BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-                ) {
+        ) {
             String keyword;
             while ((keyword = reader.readLine()) != null) {
+                // 添加到前缀树
                 this.addKeyword(keyword);
             }
-        }catch (IOException e){
-            logger.error("加载敏感词文件失败：" + e.getMessage());
+        } catch (IOException e) {
+            logger.error("加载敏感词文件失败: " + e.getMessage());
         }
-    }
-
-    /**
-     * 过滤敏感词
-     * @param text 待过滤的文本
-     * @return 过滤后的文本
-     */
-    public String filter(String text) {
-        if(StringUtils.isBlank(text)) {
-            return null;
-        }
-
-        // 指针1，指向前缀树
-        TrieNode tempNode = rootNode;
-        // 指针2，指向文本开始
-        int begin = 0;
-        // 指针3，指向文本结束
-        int position = 0;
-        // 结果
-        StringBuilder sb = new StringBuilder();
-
-        while (position < text.length()) {
-            char c = text.charAt(position);
-
-            // 跳过特殊符号
-            if (isSymbol(c)) {
-                // 若指针1处于根节点，将此符号计入结果，让指针2向下走一步
-                if (tempNode == rootNode) {
-                    sb.append(c);
-                    begin++;
-                }
-                // 无论符号在开头还是中间，指针3都向下走一步
-                position++;
-            } else {
-                // 检查下级节点
-                tempNode = tempNode.getSubNode(c);
-                if (tempNode == null) {
-                    // 与begin开头的字符串不是敏感词
-                    sb.append(text.charAt(begin));
-                    // 进入下一个位置
-                    position = ++begin;
-                    // 重新指向根节点
-                    tempNode = rootNode;
-                } else if (tempNode.isKeywordEnd) {
-                    // 发现敏感词，将begin~position字符串替换掉
-                    sb.append(REPLACEMENT);
-                    // 进入下一位置
-                    begin = ++position;
-                } else {
-                    // 继续检查下一个字符
-                    position++;
-                }
-            }
-            // 判断最后一批字符串
-            if (position == text.length() && begin != position) {
-                // 说明最后一段不符合较长敏感词，但较长敏感词可能包含短的敏感词
-                // 例如fabcd和abc两个敏感词，两者是包含关系，那么最后abc敏感词会无法过滤掉
-                // 这说明begin处是合法的
-                sb.append(text.charAt(begin));
-                position = ++begin;
-                tempNode = rootNode;
-            }
-        }
-
-        return sb.toString();
-    }
-
-    // 判断是否为符号
-    private boolean isSymbol(Character c) {
-        // 0x2E80~0x9FFF 是东亚文字范围  外国人认为是特殊符号
-        return !CharUtils.isAsciiAlphanumeric(c) && (c < 0x2E80 || c > 0x9FFF);
     }
 
     // 将一个敏感词添加到前缀树中
@@ -118,13 +48,13 @@ public class SensitiveFilter {
             char c = keyword.charAt(i);
             TrieNode subNode = tempNode.getSubNode(c);
 
-            if(subNode == null) {
+            if (subNode == null) {
                 // 初始化子节点
                 subNode = new TrieNode();
                 tempNode.addSubNode(c, subNode);
             }
 
-            // 指向子节点，进入下一轮循环
+            // 指向子节点,进入下一轮循环
             tempNode = subNode;
 
             // 设置结束标识
@@ -134,13 +64,82 @@ public class SensitiveFilter {
         }
     }
 
+    /**
+     * 过滤敏感词
+     *
+     * @param text 待过滤的文本
+     * @return 过滤后的文本
+     */
+    public String filter(String text) {
+        if (StringUtils.isBlank(text)) {
+            return null;
+        }
+
+        // 指针1
+        TrieNode tempNode = rootNode;
+        // 指针2
+        int begin = 0;
+        // 指针3
+        int position = 0;
+        // 结果
+        StringBuilder sb = new StringBuilder();
+
+        while (position < text.length()) {
+            char c = text.charAt(position);
+
+            // 跳过符号
+            if (isSymbol(c)) {
+                // 若指针1处于根节点,将此符号计入结果,让指针2向下走一步
+                if (tempNode == rootNode) {
+                    sb.append(c);
+                    begin++;
+                }
+                // 无论符号在开头或中间,指针3都向下走一步
+                position++;
+                continue;
+            }
+
+            // 检查下级节点
+            tempNode = tempNode.getSubNode(c);
+            if (tempNode == null) {
+                // 以begin开头的字符串不是敏感词
+                sb.append(text.charAt(begin));
+                // 进入下一个位置
+                position = ++begin;
+                // 重新指向根节点
+                tempNode = rootNode;
+            } else if (tempNode.isKeywordEnd()) {
+                // 发现敏感词,将begin~position字符串替换掉
+                sb.append(REPLACEMENT);
+                // 进入下一个位置
+                begin = ++position;
+                // 重新指向根节点
+                tempNode = rootNode;
+            } else {
+                // 检查下一个字符
+                position++;
+            }
+        }
+
+        // 将最后一批字符计入结果
+        sb.append(text.substring(begin));
+
+        return sb.toString();
+    }
+
+    // 判断是否为符号
+    private boolean isSymbol(Character c) {
+        // 0x2E80~0x9FFF 是东亚文字范围
+        return !CharUtils.isAsciiAlphanumeric(c) && (c < 0x2E80 || c > 0x9FFF);
+    }
+
     // 前缀树
     private class TrieNode {
 
-        // 关键词结束的标识
+        // 关键词结束标识
         private boolean isKeywordEnd = false;
 
-        // 子节点(Key是下级字符，value是下级节点)
+        // 子节点(key是下级字符,value是下级节点)
         private Map<Character, TrieNode> subNodes = new HashMap<>();
 
         public boolean isKeywordEnd() {
@@ -160,6 +159,7 @@ public class SensitiveFilter {
         public TrieNode getSubNode(Character c) {
             return subNodes.get(c);
         }
+
     }
 
 }
