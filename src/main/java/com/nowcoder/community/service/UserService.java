@@ -122,7 +122,7 @@ public class UserService implements CommunityConstant {
         }
     }
 
-    public Map<String, Object> login(String username, String password, int expiredSeconds) {
+    public Map<String, Object> login(String username, String password, long expiredSeconds) {
         Map<String, Object> map = new HashMap<>();
 
         // 空值处理
@@ -215,12 +215,12 @@ public class UserService implements CommunityConstant {
         redisTemplate.delete(redisKey);
     }
 
-    //
     public Collection<? extends GrantedAuthority> getAuthorities(int userId) {
         User user = this.findUserById(userId);
 
         List<GrantedAuthority> list = new ArrayList<>();
         list.add(new GrantedAuthority() {
+
             @Override
             public String getAuthority() {
                 switch (user.getType()) {

@@ -30,17 +30,17 @@ import java.util.List;
 public class ElasticsearchService {
 
     @Autowired
-    private DiscussPostRepository discussPostRepository;
+    private DiscussPostRepository discussRepository;
 
     @Autowired
-    private ElasticsearchTemplate elasticsearchTemplate;
+    private ElasticsearchTemplate elasticTemplate;
 
     public void saveDiscussPost(DiscussPost post) {
-        discussPostRepository.save(post);
+        discussRepository.save(post);
     }
 
     public void deleteDiscussPost(int id) {
-        discussPostRepository.deleteById(id);
+        discussRepository.deleteById(id);
     }
 
     public Page<DiscussPost> searchDiscussPost(String keyword, int current, int limit) {
@@ -55,7 +55,7 @@ public class ElasticsearchService {
                         new HighlightBuilder.Field("content").preTags("<em>").postTags("</em>")
                 ).build();
 
-        return elasticsearchTemplate.queryForPage(searchQuery, DiscussPost.class, new SearchResultMapper() {
+        return elasticTemplate.queryForPage(searchQuery, DiscussPost.class, new SearchResultMapper() {
             @Override
             public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> aClass, Pageable pageable) {
                 SearchHits hits = response.getHits();

@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.annotation.KafkaListeners;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -70,7 +69,7 @@ public class EventConsumer implements CommunityConstant {
     }
 
     // 消费发帖事件
-    @KafkaListener(topics = (TOPIC_PUBLISH))
+    @KafkaListener(topics = {TOPIC_PUBLISH})
     public void handlePublishMessage(ConsumerRecord record) {
         if (record == null || record.value() == null) {
             logger.error("消息的内容为空!");
@@ -88,7 +87,7 @@ public class EventConsumer implements CommunityConstant {
     }
 
     // 消费删帖事件
-    @KafkaListener(topics = (TOPIC_PUBLISH))
+    @KafkaListener(topics = {TOPIC_DELETE})
     public void handleDeleteMessage(ConsumerRecord record) {
         if (record == null || record.value() == null) {
             logger.error("消息的内容为空!");

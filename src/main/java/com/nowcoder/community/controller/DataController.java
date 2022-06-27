@@ -30,19 +30,18 @@ public class DataController {
         model.addAttribute("uvResult", uv);
         model.addAttribute("uvStartDate", start);
         model.addAttribute("uvEndDate", end);
-
         return "forward:/data";
     }
 
     // 统计活跃用户
     @RequestMapping(path = "/data/dau", method = RequestMethod.POST)
     public String getDAU(@DateTimeFormat(pattern = "yyyy-MM-dd") Date start,
-                        @DateTimeFormat(pattern = "yyyy-MM-dd") Date end, Model model) {
+                         @DateTimeFormat(pattern = "yyyy-MM-dd") Date end, Model model) {
         long dau = dataService.calculateDAU(start, end);
         model.addAttribute("dauResult", dau);
         model.addAttribute("dauStartDate", start);
         model.addAttribute("dauEndDate", end);
-
         return "forward:/data";
     }
+
 }

@@ -22,7 +22,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/resource/**");
+        web.ignoring().antMatchers("/resources/**");
     }
 
     @Override
@@ -32,7 +32,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                 .antMatchers(
                         "/user/setting",
                         "/user/upload",
-                        "/discuss/add/**",
+                        "/discuss/add",
+                        "/comment/add/**",
                         "/letter/**",
                         "/notice/**",
                         "/like",
@@ -60,7 +61,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                 )
                 .anyRequest().permitAll()
                 .and().csrf().disable();
-        // 权限不足时的处理
+
+        // 权限不够时的处理
         http.exceptionHandling()
                 .authenticationEntryPoint(new AuthenticationEntryPoint() {
                     // 没有登录
@@ -91,8 +93,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter implements Comm
                     }
                 });
 
-        // Security底层默认会拦截/logout请求，进行退出处理，
-        // 覆盖它默认的逻辑，才能执行我们自己打的退出代码。
+        // Security底层默认会拦截/logout请求,进行退出处理.
+        // 覆盖它默认的逻辑,才能执行我们自己的退出代码.
         http.logout().logoutUrl("/securitylogout");
     }
+
 }

@@ -23,7 +23,7 @@ public class DataService {
 
     private SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");
 
-    // 将指定的ip计入uv
+    // 将指定的IP计入UV
     public void recordUV(String ip) {
         String redisKey = RedisKeyUtil.getUVKey(df.format(new Date()));
         redisTemplate.opsForHyperLogLog().add(redisKey, ip);
@@ -59,7 +59,7 @@ public class DataService {
         redisTemplate.opsForValue().setBit(redisKey, userId, true);
     }
 
-    // 统计指定日期范围的DAU
+    // 统计指定日期范围内的DAU
     public long calculateDAU(Date start, Date end) {
         if (start == null || end == null) {
             throw new IllegalArgumentException("参数不能为空!");
